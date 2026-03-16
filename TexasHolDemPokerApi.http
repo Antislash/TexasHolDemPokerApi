@@ -1,0 +1,6 @@
+@TexasHolDemPokerApi_HostAddress = http://localhost:5247
+
+GET {{TexasHolDemPokerApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
