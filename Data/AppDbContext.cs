@@ -28,6 +28,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany(p => p.RoomPlayers)
             .HasForeignKey(rp => rp.PlayerId);
 
+        modelBuilder.Entity<Room>()
+            .Property(r => r.MaxPlayers)
+            .HasDefaultValue(8);
+
         modelBuilder.Entity<Player>()
             .HasOne(p => p.Login)
             .WithMany();

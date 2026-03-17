@@ -6,9 +6,9 @@ public interface IRoomService
 {
     Task<RoomDto> GetById(int id);
 
-    Task<List<RoomDto>> GetAll();
+    Task<List<RoomPlayerDto>> GetAll();
 
-    Task<object?> Create(RoomDto room, string? email = null);
+    Task<RoomPlayerDto> Create(RoomDto room, string? email = null);
 
     Task<bool> Delete(int id, bool physicalDelete = true);
 }

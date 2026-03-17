@@ -37,6 +37,7 @@ builder.Services.AddAutoMapper(cfg =>
 });
 
 //Initialize interface to service
+builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IRoomPlayerService, RoomPlayerService>();

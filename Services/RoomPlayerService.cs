@@ -7,7 +7,7 @@ using TexasHolDemPokerApi.Services.Interface;
 
 namespace PokerApi.Services;
 
-public class RoomPlayerService(AppDbContext context, IMapper mapper) : IRoomPlayerService
+public class RoomPlayerService(AppDbContext context, IMapper mapper, IPlayerService playerService) : IRoomPlayerService
 {
     public async Task<List<RoomPlayerDto>> GetAll()
     {
@@ -52,6 +52,23 @@ public class RoomPlayerService(AppDbContext context, IMapper mapper) : IRoomPlay
 
         context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId });
         await context.SaveChangesAsync();
+
+        return await GetById(roomId);
+    }
+
+    public async Task<RoomPlayerDto?> CreateByEmail(int roomId, string email)
+    {
+        var room = await context.Room.FindAsync(roomId);
+        if (room is null) return null;
+
+        var player = await playerService.GetOrCreateByEmail(email);
+        if (player is null) return null;
+
+        if (!await context.RoomPlayer.AnyAsync(rp => rp.RoomId == roomId && rp.PlayerId == player.Id))
+        {
+            context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = player.Id });
+            await context.SaveChangesAsync();
+        }
 
         return await GetById(roomId);
     }

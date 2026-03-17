@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokerApi.Dtos;
 using TexasHolDemPokerApi.Services.Interface;
 
+
 namespace PokerApi.Controllers;
 
 [Authorize]
@@ -18,7 +19,7 @@ public class RoomController(IRoomService service) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<RoomDto>>> GetAll()
+    public async Task<ActionResult<List<RoomPlayerDto>>> GetAll()
     {
         var allRooms = await service.GetAll();
         return Ok(allRooms);
