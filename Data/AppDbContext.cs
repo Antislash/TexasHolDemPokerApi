@@ -10,15 +10,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Player> Player => Set<Player>();
     public DbSet<Room> Room => Set<Room>();
     public DbSet<Login> Login => Set<Login>();
-    // public DbSet<RoomPlayer> RoomPlayer => Set<RoomPlayer>();
     // public DbSet<CardPlayer> CardPlayer => Set<CardPlayer>();
+    public DbSet<RoomPlayer> RoomPlayer => Set<RoomPlayer>();
 
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     modelBuilder.Entity<Player>()
-    //     .HasMany(e => e.Id)
-    //     .
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RoomPlayer>()
+            .HasKey(rp => new { rp.RoomId, rp.PlayerId });
 
-    //     base.OnModelCreating(modelBuilder);
-    // }
+        modelBuilder.Entity<RoomPlayer>()
+            .HasOne(rp => rp.Room)
+            .WithMany(r => r.RoomPlayers)
+            .HasForeignKey(rp => rp.RoomId);
+
+        modelBuilder.Entity<RoomPlayer>()
+            .HasOne(rp => rp.Player)
+            .WithMany(p => p.RoomPlayers)
+            .HasForeignKey(rp => rp.PlayerId);
+
+        modelBuilder.Entity<Player>()
+            .HasOne(p => p.Login)
+            .WithMany();
+
+        base.OnModelCreating(modelBuilder);
+    }
 }
