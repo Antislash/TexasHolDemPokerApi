@@ -2,6 +2,6 @@ namespace PokerApi.Dtos;
 
 public record RoomPlayerDto
 {
-    public int RoomId { get; set; }
-    public int PlayerId { get; set; }
+    public RoomDto Room { get; set; } = null!;
+    public List<PlayerDto> Players { get; set; } = [];
 }

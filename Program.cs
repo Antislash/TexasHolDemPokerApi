@@ -33,8 +33,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<RoomDto, Room>();
     cfg.CreateMap<LoginDto, Login>();
     cfg.CreateMap<Login, LoginDto>();
-    cfg.CreateMap<RoomPlayer, RoomPlayerDto>();
-    cfg.CreateMap<RoomPlayerDto, RoomPlayer>();
+    cfg.CreateMap<Player, PlayerDto>();
 });
 
 //Initialize interface to service

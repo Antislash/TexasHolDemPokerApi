@@ -17,24 +17,26 @@ public class RoomPlayerController(IRoomPlayerService service) : ControllerBase
         return Ok(roomPlayers);
     }
 
-    [HttpGet("{roomId}/{playerId}")]
-    public async Task<ActionResult<RoomPlayerDto>> GetById(int roomId, int playerId)
+    [HttpGet("{roomId}")]
+    public async Task<ActionResult<RoomPlayerDto>> GetById(int roomId)
     {
-        var roomPlayer = await service.GetById(roomId, playerId);
-        return roomPlayer is null ? NotFound("No entry found for the given room and player") : Ok(roomPlayer);
+        var roomPlayer = await service.GetById(roomId);
+        return roomPlayer is null ? NotFound("No entry found for the given room") : Ok(roomPlayer);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<RoomPlayerDto>> Create(RoomPlayerDto roomPlayerDto)
+    [HttpPost("{roomId}/{playerId}")]
+    public async Task<ActionResult<RoomPlayerDto>> Create(int roomId, int playerId)
     {
-        var created = await service.Create(roomPlayerDto);
-        return CreatedAtAction(nameof(GetById), new { roomId = created.RoomId, playerId = created.PlayerId }, created);
+        var created = await service.Create(roomId, playerId);
+        return created is null
+            ? NotFound("Room or player not found")
+            : CreatedAtAction(nameof(GetById), new { roomId }, created);
     }
 
     [HttpPatch("{roomId}/{playerId}")]
-    public async Task<ActionResult<RoomPlayerDto>> Update(int roomId, int playerId, RoomPlayerDto roomPlayerDto)
+    public async Task<ActionResult<RoomPlayerDto>> Update(int roomId, int playerId)
     {
-        var updated = await service.Update(roomId, playerId, roomPlayerDto);
+        var updated = await service.Update(roomId, playerId);
         return updated is null ? NotFound("No entry found for the given room and player") : Ok(updated);
     }
 

@@ -9,16 +9,30 @@ namespace PokerApi.Services;
 
 public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
 {
-    public async Task<RoomDto> Create(RoomDto roomDto)
+    public async Task<object?> Create(RoomDto roomDto, string? email = null)
     {
-        //Convert dto to model
         var room = mapper.Map<Room>(roomDto);
-
-        //Add model to database
         context.Room.Add(room);
         await context.SaveChangesAsync();
 
-        return roomDto;
+        if (email is null)
+            return mapper.Map<RoomDto>(room);
+
+        var player = await context.Player
+            .Include(p => p.Login)
+            .FirstOrDefaultAsync(p => p.Login != null && p.Login.Email == email);
+
+        if (player is null)
+            return null;
+
+        context.RoomPlayer.Add(new RoomPlayer { RoomId = room.Id, PlayerId = player.Id });
+        await context.SaveChangesAsync();
+
+        return new RoomPlayerDto
+        {
+            Room = mapper.Map<RoomDto>(room),
+            Players = [mapper.Map<PlayerDto>(player)]
+        };
     }
 
     public async Task<bool> Delete(int id, bool physicalDelete = true)

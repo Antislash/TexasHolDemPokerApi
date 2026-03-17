@@ -25,10 +25,14 @@ public class RoomController(IRoomService service) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<RoomDto>> Create(RoomDto room)
+    public async Task<ActionResult> Create(RoomDto room, [FromQuery] string? email = null)
     {
-        var createdRoom = await service.Create(room);
-        return CreatedAtAction(nameof(GetAll), createdRoom);
+        var result = await service.Create(room, email);
+
+        if (result is null)
+            return NotFound($"No player found with email '{email}'");
+
+        return CreatedAtAction(nameof(GetAll), result);
     }
 
     [HttpDelete("{id}/{physicalDelete}")]

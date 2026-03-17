@@ -8,7 +8,7 @@ public interface IRoomService
 
     Task<List<RoomDto>> GetAll();
 
-    Task<RoomDto> Create(RoomDto room);
+    Task<object?> Create(RoomDto room, string? email = null);
 
     Task<bool> Delete(int id, bool physicalDelete = true);
 }

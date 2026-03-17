@@ -9,33 +9,59 @@ namespace PokerApi.Services;
 
 public class RoomPlayerService(AppDbContext context, IMapper mapper) : IRoomPlayerService
 {
-    public Task<List<RoomPlayerDto>> GetAll()
+    public async Task<List<RoomPlayerDto>> GetAll()
     {
-        return context.RoomPlayer.Select(rp => mapper.Map<RoomPlayerDto>(rp)).ToListAsync();
+        var entries = await context.RoomPlayer
+            .Include(rp => rp.Room)
+            .Include(rp => rp.Player)
+            .ToListAsync();
+
+        return entries
+            .GroupBy(rp => rp.Room!)
+            .Select(g => new RoomPlayerDto
+            {
+                Room = mapper.Map<RoomDto>(g.Key),
+                Players = g.Select(rp => mapper.Map<PlayerDto>(rp.Player)).ToList()
+            })
+            .ToList();
     }
 
-    public async Task<RoomPlayerDto?> GetById(int roomId, int playerId)
+    public async Task<RoomPlayerDto?> GetById(int roomId)
     {
-        var roomPlayer = await context.RoomPlayer.FindAsync(roomId, playerId);
-        return roomPlayer is null ? null : mapper.Map<RoomPlayerDto>(roomPlayer);
+        var entries = await context.RoomPlayer
+            .Include(rp => rp.Room)
+            .Include(rp => rp.Player)
+            .Where(rp => rp.RoomId == roomId)
+            .ToListAsync();
+
+        if (entries.Count == 0) return null;
+
+        return new RoomPlayerDto
+        {
+            Room = mapper.Map<RoomDto>(entries.First().Room),
+            Players = entries.Select(rp => mapper.Map<PlayerDto>(rp.Player)).ToList()
+        };
     }
 
-    public async Task<RoomPlayerDto> Create(RoomPlayerDto roomPlayerDto)
+    public async Task<RoomPlayerDto?> Create(int roomId, int playerId)
     {
-        var roomPlayer = mapper.Map<RoomPlayer>(roomPlayerDto);
-        context.RoomPlayer.Add(roomPlayer);
+        var room = await context.Room.FindAsync(roomId);
+        var player = await context.Player.FindAsync(playerId);
+
+        if (room is null || player is null) return null;
+
+        context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId });
         await context.SaveChangesAsync();
-        return roomPlayerDto;
+
+        return await GetById(roomId);
     }
 
-    public async Task<RoomPlayerDto?> Update(int roomId, int playerId, RoomPlayerDto roomPlayerDto)
+    public async Task<RoomPlayerDto?> Update(int roomId, int playerId)
     {
-        var roomPlayer = await context.RoomPlayer.FindAsync(roomId, playerId);
-        if (roomPlayer is null) return null;
+        var entry = await context.RoomPlayer.FindAsync(roomId, playerId);
+        if (entry is null) return null;
 
-        mapper.Map(roomPlayerDto, roomPlayer);
-        await context.SaveChangesAsync();
-        return mapper.Map<RoomPlayerDto>(roomPlayer);
+        return await GetById(roomId);
     }
 
     public async Task<bool> Delete(int roomId, int playerId)
