@@ -9,7 +9,7 @@ namespace PokerApi.Services;
 
 public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
 {
-    public async Task<RoomDto> CreateRoom(RoomDto roomDto)
+    public async Task<RoomDto> Create(RoomDto roomDto)
     {
         //Convert dto to model
         var room = mapper.Map<Room>(roomDto);
@@ -21,7 +21,7 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
         return roomDto;
     }
 
-    public async Task<bool> DeleteRoom(int id, bool physicalDelete = true)
+    public async Task<bool> Delete(int id, bool physicalDelete = true)
     {
         Room? roomToDelete = await context.Room.FindAsync(id);
         if (roomToDelete is null) return false;
@@ -37,14 +37,14 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
         return true;
     }
 
-    public Task<List<RoomDto>> GetAllRooms()
+    public Task<List<RoomDto>> GetAll()
     {
         //return context.Room.Where(s => s.Status != RoomStatus.Deleted).Select(e => mapper.Map<RoomDto>(e)).ToListAsync();
         return context.Room.Select(e => mapper.Map<RoomDto>(e)).ToListAsync();
 
     }
 
-    public async Task<RoomDto> GetRoomById(int id)
+    public async Task<RoomDto> GetById(int id)
     {
         RoomDto? room = mapper.Map<RoomDto>(await context.Room.FindAsync(id));
 

@@ -4,11 +4,11 @@ namespace TexasHolDemPokerApi.Services.Interface;
 
 public interface IRoomService
 {
-    Task<RoomDto> GetRoomById(int id);
+    Task<RoomDto> GetById(int id);
 
-    Task<List<RoomDto>> GetAllRooms();
+    Task<List<RoomDto>> GetAll();
 
-    Task<RoomDto> CreateRoom(RoomDto room);
+    Task<RoomDto> Create(RoomDto room);
 
-    Task<bool> DeleteRoom(int id, bool physicalDelete = true);
+    Task<bool> Delete(int id, bool physicalDelete = true);
 }

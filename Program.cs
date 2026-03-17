@@ -5,6 +5,7 @@ using PokerApi.Data;
 using PokerApi.Dtos;
 using PokerApi.Models;
 using PokerApi.Services;
+using PokerApi.Services;
 using Scalar.AspNetCore;
 using TexasHolDemPokerApi.Dtos;
 using TexasHolDemPokerApi.Models;
@@ -32,11 +33,14 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<RoomDto, Room>();
     cfg.CreateMap<LoginDto, Login>();
     cfg.CreateMap<Login, LoginDto>();
+    cfg.CreateMap<RoomPlayer, RoomPlayerDto>();
+    cfg.CreateMap<RoomPlayerDto, RoomPlayer>();
 });
 
 //Initialize interface to service
-builder.Services.AddScoped<IRoomService, RoomService>();builder.Services.AddOpenApi();
-builder.Services.AddScoped<ILoginService, LoginService>(); builder.Services.AddOpenApi();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IRoomPlayerService, RoomPlayerService>();
 builder.Services.AddSingleton<TokenGenerator>();
 
 

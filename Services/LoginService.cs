@@ -8,7 +8,7 @@ using TexasHolDemPokerApi.Services.Interface;
 namespace TexasHolDemPokerApi.Services;
 public class LoginService(AppDbContext context, IMapper mapper) : ILoginService
 {
-    public async Task<LoginDto> ConnectLogin(LoginDto loginDto)
+    public async Task<LoginDto> Connect(LoginDto loginDto)
     {
         try
         {
@@ -27,7 +27,7 @@ public class LoginService(AppDbContext context, IMapper mapper) : ILoginService
         }
     }
 
-    public async Task<LoginDto> RegisterLogin(LoginDto loginDto)
+    public async Task<LoginDto> Register(LoginDto loginDto)
     {
         //Convert dto to model
         var login = mapper.Map<Login>(loginDto);

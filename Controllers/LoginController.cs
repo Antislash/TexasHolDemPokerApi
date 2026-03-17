@@ -14,9 +14,9 @@ public class LoginController(ILoginService _loginService) : ControllerBase
 {
 
     [HttpPost("register")]
-    public async Task<ActionResult> RegisterLogin(LoginDto login)
+    public async Task<ActionResult> Register(LoginDto login)
     {
-        LoginDto result = await _loginService.RegisterLogin(login);
+        LoginDto result = await _loginService.Register(login);
         TokenGenerator tokenGenerator = new TokenGenerator();
 
         return result != null ? Ok(new LoginResponse
@@ -29,9 +29,9 @@ public class LoginController(ILoginService _loginService) : ControllerBase
 
 
     [HttpPost("connect")]
-    public async Task<ActionResult> ConnectLogin(LoginDto login)
+    public async Task<ActionResult> Connect(LoginDto login)
     {
-        var result = await _loginService.ConnectLogin(login);
+        var result = await _loginService.Connect(login);
         if (result is null) return Unauthorized();
 
 

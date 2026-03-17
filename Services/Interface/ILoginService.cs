@@ -4,7 +4,7 @@ namespace TexasHolDemPokerApi.Services.Interface;
 
 public interface ILoginService
 {
-    Task<LoginDto> RegisterLogin(LoginDto login);
+    Task<LoginDto> Register(LoginDto login);
 
-    Task<LoginDto> ConnectLogin(LoginDto login);
+    Task<LoginDto> Connect(LoginDto login);
 }
