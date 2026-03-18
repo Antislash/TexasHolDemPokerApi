@@ -1,8 +1,8 @@
-using PokerApi.Models;
+using PokerApi.Dtos;
 
 namespace TexasHolDemPokerApi.Services.Interface;
 
 public interface IPlayerService
 {
-    Task<Player?> GetOrCreateByEmail(string email);
+    Task<PlayerDto?> GetOrCreateByEmail(string email);
 }

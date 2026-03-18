@@ -10,6 +10,13 @@ namespace PokerApi.Controllers;
 [ApiController]
 public class RoomPlayerController(IRoomPlayerService service) : ControllerBase
 {
+    [HttpGet("player/{playerId}")]
+    public async Task<ActionResult<List<RoomPlayerDto>>> GetRoomsByPlayer(int playerId)
+    {
+        var rooms = await service.GetRoomsByPlayerId(playerId);
+        return Ok(rooms);
+    }
+
     [HttpGet]
     public async Task<ActionResult<List<RoomPlayerDto>>> GetAll()
     {

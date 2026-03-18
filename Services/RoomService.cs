@@ -7,19 +7,15 @@ using TexasHolDemPokerApi.Services.Interface;
 
 namespace PokerApi.Services;
 
-public class RoomService(AppDbContext context, IMapper mapper, IRoomPlayerService roomPlayerService) : IRoomService
+public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
 {
-    public async Task<RoomPlayerDto> Create(RoomDto roomDto, string? email = null)
+    public async Task<RoomDto> Create(RoomDto roomDto)
     {
         var room = mapper.Map<Room>(roomDto);
         context.Room.Add(room);
         await context.SaveChangesAsync();
 
-        if (email is null)
-            return new RoomPlayerDto { Room = mapper.Map<RoomDto>(room), Players = [] };
-
-        return await roomPlayerService.CreateByEmail(room.Id, email)
-            ?? new RoomPlayerDto { Room = mapper.Map<RoomDto>(room), Players = [] };
+        return mapper.Map<RoomDto>(room);
     }
 
     public async Task<bool> Delete(int id, bool physicalDelete = true)
@@ -38,21 +34,10 @@ public class RoomService(AppDbContext context, IMapper mapper, IRoomPlayerServic
         return true;
     }
 
-    public async Task<List<RoomPlayerDto>> GetAll()
+    public async Task<List<RoomDto>> GetAll()
     {
-        var roomPlayers = await context.RoomPlayer
-            .Include(rp => rp.Room)
-            .Include(rp => rp.Player)
-            .ToListAsync();
-
-        return roomPlayers
-            .GroupBy(rp => rp.Room)
-            .Select(g => new RoomPlayerDto
-            {
-                Room = mapper.Map<RoomDto>(g.Key),
-                Players = g.Select(rp => mapper.Map<PlayerDto>(rp.Player)).ToList()
-            })
-            .ToList();
+        var rooms = await context.Room.ToListAsync();
+        return [.. rooms.Select(mapper.Map<RoomDto>)];
     }
 
     public async Task<RoomDto> GetById(int id)

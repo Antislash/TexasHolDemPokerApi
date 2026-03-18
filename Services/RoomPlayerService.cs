@@ -9,6 +9,28 @@ namespace PokerApi.Services;
 
 public class RoomPlayerService(AppDbContext context, IMapper mapper, IPlayerService playerService) : IRoomPlayerService
 {
+    public async Task<List<RoomPlayerDto>> GetRoomsByPlayerId(int playerId)
+    {
+        var roomIds = await context.RoomPlayer
+            .Where(rp => rp.PlayerId == playerId)
+            .Select(rp => rp.RoomId)
+            .ToListAsync();
+
+        var entries = await context.RoomPlayer
+            .Where(rp => roomIds.Contains(rp.RoomId))
+            .Include(rp => rp.Room)
+            .Include(rp => rp.Player)
+            .ToListAsync();
+
+        return [.. entries
+            .GroupBy(rp => rp.Room!)
+            .Select(g => new RoomPlayerDto
+            {
+                Room = mapper.Map<RoomDto>(g.Key),
+                Players = [.. g.Select(rp => mapper.Map<PlayerDto>(rp.Player))]
+            })];
+    }
+
     public async Task<List<RoomPlayerDto>> GetAll()
     {
         var entries = await context.RoomPlayer

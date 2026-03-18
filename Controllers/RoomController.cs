@@ -19,21 +19,17 @@ public class RoomController(IRoomService service) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<RoomPlayerDto>>> GetAll()
+    public async Task<ActionResult<List<RoomDto>>> GetAll()
     {
         var allRooms = await service.GetAll();
         return Ok(allRooms);
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create(RoomDto room, [FromQuery] string? email = null)
+    public async Task<ActionResult> Create(RoomDto roomDto)
     {
-        var result = await service.Create(room, email);
-
-        if (result is null)
-            return NotFound($"No player found with email '{email}'");
-
-        return CreatedAtAction(nameof(GetAll), result);
+        var room = await service.Create(roomDto);
+        return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
     }
 
     [HttpDelete("{id}/{physicalDelete}")]

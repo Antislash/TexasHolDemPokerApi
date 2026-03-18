@@ -5,6 +5,7 @@ namespace TexasHolDemPokerApi.Services.Interface;
 public interface IRoomPlayerService
 {
     Task<List<RoomPlayerDto>> GetAll();
+    Task<List<RoomPlayerDto>> GetRoomsByPlayerId(int playerId);
     Task<RoomPlayerDto?> GetById(int roomId);
     Task<RoomPlayerDto?> Create(int roomId, int playerId);
     Task<RoomPlayerDto?> CreateByEmail(int roomId, string email);
