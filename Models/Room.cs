@@ -6,6 +6,7 @@ public record Room
     public string? Name { get; set; }
     public int MaxPlayers { get; set; }
     public RoomStatus Status { get; set; }
+    public DateTime CreatedAt { get; set; }
     public ICollection<RoomPlayer> RoomPlayers { get; set; } = [];
 }
 

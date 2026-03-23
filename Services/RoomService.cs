@@ -12,6 +12,7 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
     public async Task<RoomDto> Create(RoomDto roomDto)
     {
         var room = mapper.Map<Room>(roomDto);
+        room.CreatedAt = DateTime.UtcNow;
         context.Room.Add(room);
         await context.SaveChangesAsync();
 

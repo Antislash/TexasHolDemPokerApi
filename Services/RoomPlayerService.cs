@@ -97,8 +97,16 @@ public class RoomPlayerService(AppDbContext context, IMapper mapper, IPlayerServ
 
     public async Task<RoomPlayerDto?> Update(int roomId, int playerId)
     {
-        var entry = await context.RoomPlayer.FindAsync(roomId, playerId);
-        if (entry is null) return null;
+        var room = await context.Room.FindAsync(roomId);
+        var player = await context.Player.FindAsync(playerId);
+
+        if (room is null || player is null) return null;
+
+        if (!await context.RoomPlayer.AnyAsync(rp => rp.RoomId == roomId && rp.PlayerId == playerId))
+        {
+            context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId });
+            await context.SaveChangesAsync();
+        }
 
         return await GetById(roomId);
     }
