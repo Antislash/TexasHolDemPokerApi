@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PokerApi.Dtos;
+using PokerApi.Hubs;
 using TexasHolDemPokerApi.Services.Interface;
 
 namespace PokerApi.Controllers;
@@ -8,7 +10,7 @@ namespace PokerApi.Controllers;
 [Authorize]
 [Route("[controller]")]
 [ApiController]
-public class RoomPlayerController(IRoomPlayerService service) : ControllerBase
+public class RoomPlayerController(IRoomPlayerService service, IHubContext<RoomHub> hubContext) : ControllerBase
 {
     [HttpGet("player/{playerId}")]
     public async Task<ActionResult<List<RoomPlayerDto>>> GetRoomsByPlayer(int playerId)
@@ -44,13 +46,17 @@ public class RoomPlayerController(IRoomPlayerService service) : ControllerBase
     public async Task<ActionResult<RoomPlayerDto>> Update(int roomId, int playerId)
     {
         var updated = await service.Update(roomId, playerId);
-        return updated is null ? NotFound("No entry found for the given room and player") : Ok(updated);
+        if (updated is null) return NotFound("No entry found for the given room and player");
+        await hubContext.Clients.Group($"Room-{roomId}").SendAsync("PlayerJoined", updated);
+        return Ok(updated);
     }
 
     [HttpDelete("{roomId}/{playerId}")]
     public async Task<ActionResult> Delete(int roomId, int playerId)
     {
         var deleted = await service.Delete(roomId, playerId);
-        return deleted ? NoContent() : NotFound("No entry found for the given room and player");
+        if (!deleted) return NotFound("No entry found for the given room and player");
+        await hubContext.Clients.Group($"Room-{roomId}").SendAsync("PlayerLeft", new { roomId, playerId });
+        return NoContent();
     }
 }

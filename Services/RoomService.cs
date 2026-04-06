@@ -41,6 +41,17 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
         return [.. rooms.Select(mapper.Map<RoomDto>)];
     }
 
+    public async Task<RoomDto?> UpdateStatus(int id, RoomStatus status)
+    {
+        var room = await context.Room.FindAsync(id);
+        if (room is null) return null;
+
+        room.Status = status;
+        await context.SaveChangesAsync();
+
+        return mapper.Map<RoomDto>(room);
+    }
+
     public async Task<RoomDto> GetById(int id)
     {
         RoomDto? room = mapper.Map<RoomDto>(await context.Room.FindAsync(id));

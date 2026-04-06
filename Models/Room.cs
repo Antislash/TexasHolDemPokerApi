@@ -14,5 +14,6 @@ public enum RoomStatus
 {
     Draft,
     Playing,
+    Finished,
     Deleted
 }

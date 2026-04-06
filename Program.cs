@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PokerApi.Data;
 using PokerApi.Dtos;
+using PokerApi.Hubs;
 using PokerApi.Models;
 using PokerApi.Services;
 using PokerApi.Services;
@@ -19,6 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -53,7 +55,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnMessageReceived = ctx =>
             {
+                // Token depuis cookie (existant)
                 ctx.Token = ctx.Request.Cookies["token"];
+
+                // Fallback : token depuis query string pour SignalR
+                if (string.IsNullOrEmpty(ctx.Token))
+                {
+                    var accessToken = ctx.Request.Query["access_token"];
+                    var path = ctx.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        ctx.Token = accessToken;
+                }
+
                 return Task.CompletedTask;
             }
         };
@@ -109,5 +122,7 @@ app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.MapHub<RoomHub>("/hubs/poker");
 
 app.Run();
