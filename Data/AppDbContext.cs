@@ -38,6 +38,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(r => r.DealerPlayerId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        modelBuilder.Entity<Room>()
+            .HasOne<Player>()
+            .WithMany()
+            .HasForeignKey(r => r.CurrentPlayerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<Player>()
             .HasOne(p => p.Login)
             .WithMany();

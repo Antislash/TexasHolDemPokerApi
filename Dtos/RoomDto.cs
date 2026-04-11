@@ -10,4 +10,5 @@ public record RoomDto
     public RoomStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public int? DealerPlayerId { get; set; }
+    public int? CurrentPlayerId { get; set; }
 }
