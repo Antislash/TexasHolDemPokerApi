@@ -71,6 +71,7 @@ public class RoomPlayerService(AppDbContext context, IMapper mapper, IPlayerServ
         var player = await context.Player.FindAsync(playerId);
 
         if (room is null || player is null) return null;
+        if (room.Status != RoomStatus.Draft) return null;
 
         context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId });
         await context.SaveChangesAsync();
@@ -101,6 +102,7 @@ public class RoomPlayerService(AppDbContext context, IMapper mapper, IPlayerServ
         var player = await context.Player.FindAsync(playerId);
 
         if (room is null || player is null) return null;
+        if (room.Status != RoomStatus.Draft) return null;
 
         if (!await context.RoomPlayer.AnyAsync(rp => rp.RoomId == roomId && rp.PlayerId == playerId))
         {

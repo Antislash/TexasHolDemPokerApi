@@ -123,6 +123,6 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.MapHub<RoomHub>("/hubs/poker");
+app.MapHub<RoomHub>("/hubs/rooms");
 
 app.Run();

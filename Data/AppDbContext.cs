@@ -32,6 +32,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(r => r.MaxPlayers)
             .HasDefaultValue(8);
 
+        modelBuilder.Entity<Room>()
+            .HasOne<Player>()
+            .WithMany()
+            .HasForeignKey(r => r.DealerPlayerId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         modelBuilder.Entity<Player>()
             .HasOne(p => p.Login)
             .WithMany();

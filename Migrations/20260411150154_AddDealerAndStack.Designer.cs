@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PokerApi.Data;
 
@@ -11,9 +12,11 @@ using PokerApi.Data;
 namespace TexasHolDemPokerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260411150154_AddDealerAndStack")]
+    partial class AddDealerAndStack
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,9 +70,6 @@ namespace TexasHolDemPokerApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DealerPlayerId")
-                        .HasColumnType("int");
-
                     b.Property<int>("MaxPlayers")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -82,8 +82,6 @@ namespace TexasHolDemPokerApi.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DealerPlayerId");
 
                     b.ToTable("Room");
                 });
@@ -100,7 +98,6 @@ namespace TexasHolDemPokerApi.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("Stack")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("RoomId", "PlayerId");
@@ -141,14 +138,6 @@ namespace TexasHolDemPokerApi.Migrations
                         .HasForeignKey("LoginId");
 
                     b.Navigation("Login");
-                });
-
-            modelBuilder.Entity("PokerApi.Models.Room", b =>
-                {
-                    b.HasOne("PokerApi.Models.Player", null)
-                        .WithMany()
-                        .HasForeignKey("DealerPlayerId")
-                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("PokerApi.Models.RoomPlayer", b =>

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -31,7 +32,8 @@ public class RoomController(IRoomService service, IHubContext<RoomHub> hubContex
     [HttpPost]
     public async Task<ActionResult> Create(RoomDto roomDto)
     {
-        var room = await service.Create(roomDto);
+        var email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+        var room = await service.Create(roomDto, email);
         // Notifier tous les connectés
         await hubContext.Clients.All.SendAsync("RoomCreated", room);
         return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
