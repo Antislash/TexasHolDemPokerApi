@@ -52,7 +52,7 @@ public class GameService(AppDbContext context, IMapper mapper) : IGameService
             {
                 GameId = game.Id,
                 PlayerId = rp.PlayerId,
-                Stack = rp.Stack,
+                Stack = room.Stack,
             });
         }
 

@@ -21,7 +21,7 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
 
         if (player is not null)
         {
-            context.RoomPlayer.Add(new RoomPlayer { RoomId = room.Id, PlayerId = player.Id, Stack = 500 });
+            context.RoomPlayer.Add(new RoomPlayer { RoomId = room.Id, PlayerId = player.Id });
         }
 
         await context.SaveChangesAsync();
@@ -95,7 +95,7 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
 
         if (!await context.RoomPlayer.AnyAsync(rp => rp.RoomId == roomId && rp.PlayerId == playerId))
         {
-            context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId, Stack = 500 });
+            context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId });
             await context.SaveChangesAsync();
         }
 

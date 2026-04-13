@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace PokerApi.Models;
 
 public record RoomPlayer
@@ -9,9 +7,4 @@ public record RoomPlayer
 
     public int PlayerId { get; set; }
     public Player Player { get; set; } = null!;
-
-    public bool IsDealer { get; set; }
-    
-    [Precision(18, 2)]
-    public decimal Stack { get; set; }
 }
