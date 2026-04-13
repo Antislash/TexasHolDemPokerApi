@@ -42,7 +42,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IRoomPlayerService, RoomPlayerService>();
+builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<TokenGenerator>();
 
 

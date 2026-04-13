@@ -7,8 +7,6 @@ public record Room
     public int MaxPlayers { get; set; }
     public RoomStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
-    public int? DealerPlayerId { get; set; }
-    public int? CurrentPlayerId { get; set; }
     public ICollection<RoomPlayer> RoomPlayers { get; set; } = [];
 }
 

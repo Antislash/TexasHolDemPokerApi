@@ -7,7 +7,6 @@ using PokerApi.Hubs;
 using PokerApi.Models;
 using TexasHolDemPokerApi.Services.Interface;
 
-
 namespace PokerApi.Controllers;
 
 [Authorize]
@@ -34,7 +33,6 @@ public class RoomController(IRoomService service, IHubContext<RoomHub> hubContex
     {
         var email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
         var room = await service.Create(roomDto, email);
-        // Notifier tous les connectés
         await hubContext.Clients.All.SendAsync("RoomCreated", room);
         return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
     }
@@ -51,5 +49,32 @@ public class RoomController(IRoomService service, IHubContext<RoomHub> hubContex
     {
         var deleted = await service.Delete(id, physicalDelete);
         return deleted ? NoContent() : NotFound("No room with the given id was found");
+    }
+
+    // Room players
+
+    [HttpGet("{roomId}/players")]
+    public async Task<ActionResult<RoomPlayerDto>> GetPlayers(int roomId)
+    {
+        var roomWithPlayers = await service.GetRoomWithPlayers(roomId);
+        return roomWithPlayers is null ? NotFound("No room with the given id was found") : Ok(roomWithPlayers);
+    }
+
+    [HttpPost("{roomId}/players/{playerId}")]
+    public async Task<ActionResult<RoomPlayerDto>> JoinRoom(int roomId, int playerId)
+    {
+        var result = await service.JoinRoom(roomId, playerId);
+        if (result is null) return NotFound("Room not found or not in Draft status");
+        await hubContext.Clients.All.SendAsync("PlayerJoined", result);
+        return Ok(result);
+    }
+
+    [HttpDelete("{roomId}/players/{playerId}")]
+    public async Task<ActionResult> LeaveRoom(int roomId, int playerId)
+    {
+        var deleted = await service.LeaveRoom(roomId, playerId);
+        if (!deleted) return NotFound("No entry found for the given room and player");
+        await hubContext.Clients.All.SendAsync("PlayerLeft", new { roomId, playerId });
+        return NoContent();
     }
 }

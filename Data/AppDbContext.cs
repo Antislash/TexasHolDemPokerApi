@@ -12,6 +12,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Login> Login => Set<Login>();
     // public DbSet<CardPlayer> CardPlayer => Set<CardPlayer>();
     public DbSet<RoomPlayer> RoomPlayer => Set<RoomPlayer>();
+    public DbSet<Game> Game => Set<Game>();
+    public DbSet<GamePlayer> GamePlayer => Set<GamePlayer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,21 +34,35 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(r => r.MaxPlayers)
             .HasDefaultValue(8);
 
-        modelBuilder.Entity<Room>()
-            .HasOne<Player>()
-            .WithMany()
-            .HasForeignKey(r => r.DealerPlayerId)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        modelBuilder.Entity<Room>()
-            .HasOne<Player>()
-            .WithMany()
-            .HasForeignKey(r => r.CurrentPlayerId)
-            .OnDelete(DeleteBehavior.NoAction);
-
         modelBuilder.Entity<Player>()
             .HasOne(p => p.Login)
             .WithMany();
+
+        modelBuilder.Entity<GamePlayer>()
+            .HasKey(gp => new { gp.GameId, gp.PlayerId });
+
+        modelBuilder.Entity<GamePlayer>()
+            .HasOne(gp => gp.Game)
+            .WithMany(g => g.GamePlayers)
+            .HasForeignKey(gp => gp.GameId);
+
+        modelBuilder.Entity<GamePlayer>()
+            .HasOne(gp => gp.Player)
+            .WithMany()
+            .HasForeignKey(gp => gp.PlayerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Game>()
+            .HasOne<Player>()
+            .WithMany()
+            .HasForeignKey(g => g.DealerPlayerId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Game>()
+            .HasOne<Player>()
+            .WithMany()
+            .HasForeignKey(g => g.CurrentPlayerId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         base.OnModelCreating(modelBuilder);
     }

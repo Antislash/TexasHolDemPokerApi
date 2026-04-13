@@ -17,7 +17,6 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
 
         var room = mapper.Map<Room>(roomDto);
         room.CreatedAt = DateTime.UtcNow;
-        room.DealerPlayerId = player?.Id;
         context.Room.Add(room);
 
         if (player is not null)
@@ -35,12 +34,10 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
         Room? roomToDelete = await context.Room.FindAsync(id);
         if (roomToDelete is null) return false;
 
-        if(physicalDelete)
+        if (physicalDelete)
             context.Room.Remove(roomToDelete);
         else
-        {
             roomToDelete.Status = RoomStatus.Deleted;
-        }
 
         await context.SaveChangesAsync();
         return true;
@@ -66,7 +63,52 @@ public class RoomService(AppDbContext context, IMapper mapper) : IRoomService
     public async Task<RoomDto> GetById(int id)
     {
         RoomDto? room = mapper.Map<RoomDto>(await context.Room.FindAsync(id));
-
         return room;
+    }
+
+    // Room players
+
+    public async Task<RoomPlayerDto?> GetRoomWithPlayers(int roomId)
+    {
+        var entries = await context.RoomPlayer
+            .Include(rp => rp.Room)
+            .Include(rp => rp.Player)
+            .Where(rp => rp.RoomId == roomId)
+            .ToListAsync();
+
+        if (entries.Count == 0) return null;
+
+        return new RoomPlayerDto
+        {
+            Room = mapper.Map<RoomDto>(entries.First().Room),
+            Players = entries.Select(rp => mapper.Map<PlayerDto>(rp.Player)).ToList()
+        };
+    }
+
+    public async Task<RoomPlayerDto?> JoinRoom(int roomId, int playerId)
+    {
+        var room = await context.Room.FindAsync(roomId);
+        var player = await context.Player.FindAsync(playerId);
+
+        if (room is null || player is null) return null;
+        if (room.Status != RoomStatus.Draft) return null;
+
+        if (!await context.RoomPlayer.AnyAsync(rp => rp.RoomId == roomId && rp.PlayerId == playerId))
+        {
+            context.RoomPlayer.Add(new RoomPlayer { RoomId = roomId, PlayerId = playerId, Stack = 500 });
+            await context.SaveChangesAsync();
+        }
+
+        return await GetRoomWithPlayers(roomId);
+    }
+
+    public async Task<bool> LeaveRoom(int roomId, int playerId)
+    {
+        var roomPlayer = await context.RoomPlayer.FindAsync(roomId, playerId);
+        if (roomPlayer is null) return false;
+
+        context.RoomPlayer.Remove(roomPlayer);
+        await context.SaveChangesAsync();
+        return true;
     }
 }
